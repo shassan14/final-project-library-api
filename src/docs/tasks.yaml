@@ -1,0 +1,100 @@
+paths:
+  /projects/{projectId}/tasks:
+    get:
+      summary: Get all tasks for a project
+      security:
+        - bearerAuth: []
+      tags:
+        - Tasks
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of tasks
+
+    post:
+      summary: Create a task under a project
+      security:
+        - bearerAuth: []
+      tags:
+        - Tasks
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, status]
+              properties:
+                title:
+                  type: string
+                status:
+                  type: string
+                  enum:
+                    - todo
+                    - doing
+                    - done
+                dueDate:
+                  type: string
+      responses:
+        "201":
+          description: Task created
+
+  /tasks/{id}:
+    put:
+      summary: Update task (owner or admin)
+      security:
+        - bearerAuth: []
+      tags:
+        - Tasks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                status:
+                  type: string
+                  enum:
+                    - todo
+                    - doing
+                    - done
+                dueDate:
+                  type: string
+      responses:
+        "200":
+          description: Task updated
+
+    delete:
+      summary: Delete task (owner or admin)
+      security:
+        - bearerAuth: []
+      tags:
+        - Tasks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Task deleted

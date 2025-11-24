@@ -1,0 +1,11 @@
+paths:
+  /users/me:
+    get:
+      summary: Get current authenticated user
+      security:
+        - bearerAuth: []
+      tags:
+        - Users
+      responses:
+        "200":
+          description: User details

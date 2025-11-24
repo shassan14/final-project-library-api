@@ -1,0 +1,84 @@
+paths:
+  /tasks/{taskId}/comments:
+    get:
+      summary: Get all comments for a task
+      security:
+        - bearerAuth: []
+      tags:
+        - Comments
+      parameters:
+        - in: path
+          name: taskId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of comments
+
+    post:
+      summary: Create a comment on a task
+      security:
+        - bearerAuth: []
+      tags:
+        - Comments
+      parameters:
+        - in: path
+          name: taskId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content:
+                  type: string
+      responses:
+        "201":
+          description: Comment created
+
+  /comments/{id}:
+    put:
+      summary: Update a comment (owner or admin)
+      security:
+        - bearerAuth: []
+      tags:
+        - Comments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+      responses:
+        "200":
+          description: Comment updated
+
+    delete:
+      summary: Delete a comment (owner or admin)
+      security:
+        - bearerAuth: []
+      tags:
+        - Comments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Comment deleted
