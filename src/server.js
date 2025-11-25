@@ -1,7 +1,11 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import projectRoutes from './routes/projectRoutes.js';
+
+import authRoutes from './routes/auth.routes.js';
+import userRoutes from './routes/user.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,6 +18,9 @@ app.use(express.json());
 app.use('/projects', projectRoutes);
 
 // 404 handler (keep this AFTER routes)
+app.use('/auth', authRoutes);
+app.use('/users', userRoutes);
+
 app.use((req, res, next) => {
   const err = new Error('Not Found');
   err.status = 404;
