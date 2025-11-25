@@ -2,16 +2,15 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
-import projectRoutes from './routes/projectRoutes.js';
 
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger.js';
 
-import authRoutes from './routes/auth.routes.js';
-import userRoutes from './routes/user.routes.js';
-import projectRoutes from './routes/project.routes.js';
+import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import projectRoutes from './routes/projectRoutes.js';
 import taskRoutes from './routes/tasks.js';
-import commentRoutes from './routes/comment.routes.js';
+import commentRoutes from './routes/commentRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,10 +19,6 @@ app.use(cors());
 app.use(morgan('tiny'));
 app.use(express.json());
 
-// register your Project routes here
-app.use('/projects', projectRoutes);
-
-// 404 handler (keep this AFTER routes)
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
 app.use('/projects', projectRoutes);
@@ -42,7 +37,6 @@ app.use((req, res, next) => {
   next(err);
 });
 
-// error handler (keep this LAST)
 app.use((err, req, res, next) => {
   if (!err.status) {
     err.status = 500;
@@ -57,4 +51,5 @@ app.listen(PORT, () => {
 });
 
 export default app;
+
 
