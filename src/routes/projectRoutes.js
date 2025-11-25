@@ -1,5 +1,5 @@
 import express from 'express';
-import { authMiddleware } from '../middlewares/auth.js';
+import { requireAuth } from '../middleware/authMiddleware.js';
 import {
   getProjects,
   createProject,
@@ -9,7 +9,7 @@ import {
 
 const router = express.Router();
 
-router.use(authMiddleware);
+router.use(requireAuth);
 
 router.get('/', getProjects);
 router.post('/', createProject);

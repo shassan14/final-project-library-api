@@ -1,38 +1,38 @@
-// src/swagger.js
-const path = require("path");
-const swaggerJsdoc = require("swagger-jsdoc");
+import path from 'path';
+import swaggerJsdoc from 'swagger-jsdoc';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const swaggerOptions = {
   definition: {
-    openapi: "3.0.0",
+    openapi: '3.0.0',
     info: {
-      title: "Task Tracker API",
-      version: "1.0.0",
+      title: 'Task Tracker API',
+      version: '1.0.0',
       description:
-        "REST API for managing projects, tasks, and comments with JWT authentication.",
+        'REST API for managing projects, tasks, and comments with JWT authentication.',
     },
     servers: [
       {
-        // Local dev; on Render set BASE_URL env var
-        url: process.env.BASE_URL || "http://localhost:3000",
+        url: process.env.BASE_URL || 'http://localhost:3000',
       },
     ],
     components: {
       securitySchemes: {
         bearerAuth: {
-          type: "http",
-          scheme: "bearer",
-          bearerFormat: "JWT",
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
         },
       },
     },
-    // By default, require bearer token unless overridden in YAML
     security: [{ bearerAuth: [] }],
   },
-  // Load all YAML docs from src/docs
-  apis: [path.join(__dirname, "docs/*.yaml")],
+  apis: [path.join(__dirname, 'docs/*.yaml')],
 };
 
-const swaggerSpec = swaggerJsdoc(swaggerOptions);
+export const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
-module.exports = { swaggerSpec };
+export default swaggerSpec;
