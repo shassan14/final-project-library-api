@@ -22,8 +22,8 @@ app.use(express.json());
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
 app.use('/projects', projectRoutes);
-app.use('/', taskRoutes);
-app.use('/', commentRoutes);
+app.use('/tasks', taskRoutes);
+app.use('/comments', commentRoutes);
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
@@ -51,3 +51,4 @@ app.listen(PORT, () => {
 });
 
 export default app;
+
