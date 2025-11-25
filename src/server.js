@@ -31,6 +31,11 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
+app.get('/', (req, res) => {
+  res.send('Welcome to the Project Management API');
+});
+
+
 app.use((req, res, next) => {
   const err = new Error('Not Found');
   err.status = 404;
