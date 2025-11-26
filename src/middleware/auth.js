@@ -1,19 +1,35 @@
-const jwt = require('jsonwebtoken');
-const { User } = require('../models');
+import jwt from 'jsonwebtoken';
+import prisma from '../utils/prismaClient.js';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret';
 
 const auth = async (req, res, next) => {
   try {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-    
+    const header = req.header('Authorization') || req.header('authorization');
+
+    if (!header) {
+      return res.status(401).json({
+        error: { message: 'No token, authorization denied' }
+      });
+    }
+
+    const token = header.replace('Bearer ', '').trim();
+
     if (!token) {
       return res.status(401).json({
         error: { message: 'No token, authorization denied' }
       });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findByPk(decoded.user.id, {
-      attributes: { exclude: ['password'] }
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId },
+      select: {
+        id: true,
+        email: true,
+        role: true
+      }
     });
 
     if (!user) {
@@ -25,10 +41,11 @@ const auth = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    res.status(401).json({
+    console.error('Auth middleware error:', error);
+    return res.status(401).json({
       error: { message: 'Token is not valid' }
     });
   }
 };
 
-module.exports = auth;
+export default auth;

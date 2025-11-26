@@ -11,28 +11,26 @@ const swaggerOptions = {
     info: {
       title: 'Task Tracker API',
       version: '1.0.0',
-      description:
-        'REST API for managing projects, tasks, and comments with JWT authentication.',
+      description: 'REST API for managing projects, tasks, and comments with JWT authentication.'
     },
     servers: [
       {
-        url: process.env.BASE_URL || 'http://localhost:3000',
-      },
+        url: process.env.BASE_URL || 'https://final-project-library-api-u505.onrender.com'
+      }
     ],
     components: {
       securitySchemes: {
         bearerAuth: {
           type: 'http',
           scheme: 'bearer',
-          bearerFormat: 'JWT',
-        },
-      },
+          bearerFormat: 'JWT'
+        }
+      }
     },
-    security: [{ bearerAuth: [] }],
+    security: [{ bearerAuth: [] }]
   },
-  apis: [path.join(__dirname, 'docs/*.yaml')],
+  apis: [path.join(__dirname, 'docs/*.yaml')]
 };
 
 export const swaggerSpec = swaggerJsdoc(swaggerOptions);
-
 export default swaggerSpec;
