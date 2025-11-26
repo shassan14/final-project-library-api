@@ -32,7 +32,7 @@ app.get('/health', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.send('Welcome to the Project Management API');
+  res.redirect('/docs');
 });
 
 
