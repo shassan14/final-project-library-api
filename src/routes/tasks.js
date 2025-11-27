@@ -1,3 +1,4 @@
+// src/routes/tasks.js
 import express from 'express';
 import prisma from '../prismaClient.js';
 import { requireAuth } from '../middleware/authMiddleware.js';
@@ -9,9 +10,12 @@ router.get('/projects/:projectId/tasks', requireAuth, async (req, res) => {
   try {
     const projectId = Number(req.params.projectId);
 
-    // Ensure project exists
+    if (Number.isNaN(projectId)) {
+      return res.status(400).json({ error: 'Invalid project id' });
+    }
+
     const project = await prisma.project.findUnique({
-      where: { id: projectId },
+      where: { id: projectId }
     });
 
     if (!project) {
@@ -19,12 +23,12 @@ router.get('/projects/:projectId/tasks', requireAuth, async (req, res) => {
     }
 
     // Ownership check
-    if (project.userId !== req.user.sub && req.user.role !== 'admin') {
+    if (project.userId !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Access denied' });
     }
 
     const tasks = await prisma.task.findMany({
-      where: { projectId },
+      where: { projectId }
     });
 
     res.json(tasks);
@@ -34,15 +38,22 @@ router.get('/projects/:projectId/tasks', requireAuth, async (req, res) => {
   }
 });
 
-// CREATE a task
+// CREATE a task for a project
 router.post('/projects/:projectId/tasks', requireAuth, async (req, res) => {
   try {
     const projectId = Number(req.params.projectId);
     const { title, status = 'todo', dueDate } = req.body;
 
-    // Validate project
+    if (Number.isNaN(projectId)) {
+      return res.status(400).json({ error: 'Invalid project id' });
+    }
+
+    if (!title || title.trim() === '') {
+      return res.status(400).json({ error: 'Title is required' });
+    }
+
     const project = await prisma.project.findUnique({
-      where: { id: projectId },
+      where: { id: projectId }
     });
 
     if (!project) {
@@ -50,18 +61,18 @@ router.post('/projects/:projectId/tasks', requireAuth, async (req, res) => {
     }
 
     // Ownership check
-    if (project.userId !== req.user.sub && req.user.role !== 'admin') {
+    if (project.userId !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Access denied' });
     }
 
     const task = await prisma.task.create({
       data: {
-        title,
+        title: title.trim(),
         status,
-        dueDate,
-        projectId,
-        userId: req.user.sub,
-      },
+        dueDate: dueDate ? new Date(dueDate) : null,
+        projectId
+        // ⛔️ no userId here – Task model doesn’t have userId in Prisma
+      }
     });
 
     res.status(201).json(task);
@@ -77,23 +88,44 @@ router.put('/tasks/:id', requireAuth, async (req, res) => {
     const taskId = Number(req.params.id);
     const { title, status, dueDate } = req.body;
 
+    if (Number.isNaN(taskId)) {
+      return res.status(400).json({ error: 'Invalid task id' });
+    }
+
     const task = await prisma.task.findUnique({
       where: { id: taskId },
-      include: { project: true },
+      include: { project: true }
     });
 
     if (!task) {
       return res.status(404).json({ error: 'Task not found' });
     }
 
-    // Check ownership
-    if (task.project.userId !== req.user.sub && req.user.role !== 'admin') {
+    // Ownership check
+    if (task.project.userId !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const data = {};
+
+    if (typeof title === 'string') {
+      if (title.trim() === '') {
+        return res.status(400).json({ error: 'Title cannot be empty' });
+      }
+      data.title = title.trim();
+    }
+
+    if (typeof status === 'string') {
+      data.status = status;
+    }
+
+    if (typeof dueDate === 'string') {
+      data.dueDate = new Date(dueDate);
     }
 
     const updated = await prisma.task.update({
       where: { id: taskId },
-      data: { title, status, dueDate },
+      data
     });
 
     res.json(updated);
@@ -108,9 +140,13 @@ router.delete('/tasks/:id', requireAuth, async (req, res) => {
   try {
     const taskId = Number(req.params.id);
 
+    if (Number.isNaN(taskId)) {
+      return res.status(400).json({ error: 'Invalid task id' });
+    }
+
     const task = await prisma.task.findUnique({
       where: { id: taskId },
-      include: { project: true },
+      include: { project: true }
     });
 
     if (!task) {
@@ -118,13 +154,11 @@ router.delete('/tasks/:id', requireAuth, async (req, res) => {
     }
 
     // Ownership check
-    if (task.project.userId !== req.user.sub && req.user.role !== 'admin') {
+    if (task.project.userId !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    await prisma.task.delete({
-      where: { id: taskId },
-    });
+    await prisma.task.delete({ where: { id: taskId } });
 
     res.status(204).send();
   } catch (error) {
